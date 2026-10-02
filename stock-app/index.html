@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock App</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- jspdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body { padding-top: 4rem; }
+        .sticky-top { z-index: 1020; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Stock App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#products-tab" data-bs-toggle="tab">Productos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#clients-tab" data-bs-toggle="tab">Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#sales-tab" data-bs-toggle="tab">Ventas</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="tab-content" id="myTabContent">
+            <!-- Products Tab -->
+            <div class="tab-pane fade show active" id="products-tab" role="tabpanel" aria-labelledby="products-tab">
+                <h2>Productos</h2>
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#productModal">
+                    <i class="bi bi-plus-lg"></i> Nuevo Producto
+                </button>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Costo</th>
+                            <th>Precio Venta</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Clients Tab -->
+            <div class="tab-pane fade" id="clients-tab" role="tabpanel" aria-labelledby="clients-tab">
+                <h2>Clientes</h2>
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#clientModal">
+                    <i class="bi bi-plus-lg"></i> Nuevo Cliente
+                </button>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Deuda</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sales Tab -->
+            <div class="tab-pane fade" id="sales-tab" role="tabpanel" aria-labelledby="sales-tab">
+                <h2>Nueva Venta</h2>
+                <form id="saleForm">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="clientSelect" class="form-label">Cliente</label>
+                            <select class="form-select" id="clientSelect" required>
+                                <option value="">Seleccione un cliente</option>
+                                <!-- Filled by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="productSelect" class="form-label">Producto</label>
+                            <select class="form-select" id="productSelect" required>
+                                <option value="">Seleccione un producto</option>
+                                <!-- Filled by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="quantity" class="form-label">Cantidad</label>
+                            <input type="number" class="form-control" id="quantity" min="1" value="1">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-success w-100" id="addToCartBtn">
+                                <i class="bi bi-cart-plus"></i> Agregar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Método de Pago</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="paymentCash" value="cash" checked>
+                            <label class="form-check-label" for="paymentCash">Contado</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="paymentCredit" value="credit">
+                            <label class="form-check-label" for="paymentCredit">Crédito</label>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="cartTable">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Subtotal</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartTableBody">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h5>Resumen</h5>
+                            <div id="saleSummary">
+                                <p>Subtotal: <span id="subtotal">$0.00</span></p>
+                                <p>Interés (10%): <span id="interest">$0.00</span></p>
+                                <p>Total: <span id="total">$0.00</span></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <button type="submit" class="btn btn-primary btn-lg" id="processSaleBtn">
+                                <i class="bi bi-check-lg"></i> Procesar Venta
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="productForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="productModalLabel">Nuevo Producto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="productCode" class="form-label">Código</label>
+                            <input type="text" class="form-control" id="productCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productDesc" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="productDesc" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productCost" class="form-label">Costo</label>
+                            <input type="number" class="form-control" id="productCost" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productPrice" class="form-label">Precio de Venta</label>
+                            <input type="number" class="form-control" id="productPrice" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productStock" class="form-label">Stock Inicial</label>
+                            <input type="number" class="form-control" id="productStock" min="0" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Producto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Modal -->
+    <div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="clientForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clientModalLabel">Nuevo Cliente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="clientName" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="clientName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="clientDebt" class="form-label">Deuda Inicial</label>
+                            <input type="number" class="form-control" id="clientDebt" step="0.01" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cliente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
